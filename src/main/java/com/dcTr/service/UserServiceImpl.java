@@ -3,6 +3,7 @@ package com.dcTr.service;
 import com.dcTr.model.Role;
 import com.dcTr.model.User;
 import com.dcTr.repository.UserRepository;
+import com.dcTr.validation.UserValidation;
 import com.dcTr.web.dto.UserRegistrationDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,14 +21,16 @@ import java.util.stream.Collectors;
 @Service
 public class UserServiceImpl implements UserService{
 
-    private UserRepository userRepository;
 
+    private UserRepository userRepository;
+    private final UserValidation userValidation;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, UserValidation userValidation) {
         super();
         this.userRepository = userRepository;
+        this.userValidation = userValidation;
     }
 
     @Override
@@ -51,6 +54,10 @@ public class UserServiceImpl implements UserService{
 
     private Collection<? extends GrantedAuthority> mapRolesToAuthorities(Collection<Role> roles){
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName())).collect(Collectors.toList());
+    }
+
+    public void validateAndCreateUser(UserRegistrationDto registrationDto){
+        userValidation.validateUserEmail(registrationDto);
     }
 
 }
